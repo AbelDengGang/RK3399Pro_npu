@@ -100,7 +100,10 @@ build_linux_cross.sh
 ```sh
 ANDROID_NDK_PATH=~/tools/android-ndk-r17c/
 ```
-
+### 在板子上本地编译
+```
+build_linux_native.sh
+```
 ### 在板子上运行（DEBIAN，SSH）
 用网络连接上板子，如果板子的IP为  192.168.3.21
 推送install到下的目录到板子上
