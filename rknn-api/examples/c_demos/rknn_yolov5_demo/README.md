@@ -81,9 +81,9 @@ c. 将大kernel_size的MaxPooling改成3x3 MaxPooling Stack结构
 
 ## Aarch64 Linux Demo
 
-### 编译
+### 交叉编译
 
-根据指定平台修改`build_linux.sh`中的交叉编译器所在目录的路径`GCC_COMPILER`，例如修改成
+根据指定平台修改`build_linux_cross.sh`中的交叉编译器所在目录的路径`GCC_COMPILER`，例如修改成
 
 ```sh
 GCC_COMPILER=~/opt/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf
@@ -92,7 +92,7 @@ GCC_COMPILER=~/opt/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-
 然后执行：
 
 ```sh
-./build.sh
+build_linux_cross.sh
 ```
 
 如果是Android平台，修改`build_android.sh`中的NDK路径，例如修改成
@@ -101,7 +101,20 @@ GCC_COMPILER=~/opt/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-
 ANDROID_NDK_PATH=~/tools/android-ndk-r17c/
 ```
 
-### 推送执行文件到板子
+### 在板子上运行（DEBIAN，SSH）
+用网络连接上板子，如果板子的IP为  192.168.3.21
+推送install到下的目录到板子上
+```
+scp -r install/rknn_yolov5_demo_Linux toybrick@192.168.3.21:/home/toybrick/workspace/
+```
+在板子上运行命令:
+```
+cd ~/workspace/rknn_yolov5_demo_Linux
+./run_demo.sh 
+```
+
+
+### 推送执行文件到板子  
 
 连接板子的usb口到PC,将整个demo目录到`/userdata`:
 
