@@ -8,3 +8,6 @@ target_link_libraries( display_image ${OpenCV_LIBS} )
 
 add_executable( cam_test cam_test.cpp )
 target_link_libraries( cam_test ${OpenCV_LIBS} )
+
+add_executable( data_format data_format.cpp )
+target_link_libraries( data_format ${OpenCV_LIBS} )
