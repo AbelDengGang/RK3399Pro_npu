@@ -7,12 +7,17 @@
 #include <opencv2/opencv.hpp>
 
 #include "dr_detector.h"
-
+#ifdef USE_RK_NPU
+#include "rk_npu_detector.h"
+#endif 
 // 检测器列表，越前面的检测器速度越快，优先级越高。每当有新的图片进来，要按照优先级来把图片分配给检测器。
 // 当速度最快的检测器忙的时候，才尝试使用低速检测器。
 // 最低速的检测器不做任何处理，只是记录图片，用于利用前面检测器的结果进行tracking
 // 如果所有的检测器都满了，那就丢弃
 DrDetector detectors[]={
+#ifdef USE_RK_NPU
+//    RKNpuDetector(2,"rknpu_detector"),
+#endif    
     DrDetector(3,"detector0"),
 //    DrDetector(5,"detector1"),
 };
@@ -64,6 +69,7 @@ static void localCamThreadFun(){
 int main(int argc, char **argv)
 {
     std::thread threadLocalCam(localCamThreadFun); //调用摄像头
+
     threadLocalCam.join();
    return 0;
 }

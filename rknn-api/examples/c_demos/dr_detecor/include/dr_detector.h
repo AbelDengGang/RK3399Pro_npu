@@ -1,5 +1,5 @@
-#ifndef __DR_DECTOR_H__
-#define __DR_DECTOR_H__
+#ifndef __DR_DETECTOR_H__
+#define __DR_DETECTOR_H__
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include <semaphore.h>
@@ -45,7 +45,7 @@ public:
         return queueSize;
     }
 
-    ~DrDetector(){
+    virtual ~DrDetector(){
         stopThread = true;
         LOG_INFO << detectorName << ": waiting for work thread quit" << endl;
         sem_post(&full_sem); // 唤醒工作线程，让他退出
@@ -63,6 +63,10 @@ public:
     // if queue has free slot, copy the frame to queue, and return true
     // otherwise return false if queue is full.
     bool tryAddFrame(Frame &frame);
+
+    virtual void process(Frame & frame){
+        
+    }
 };
 
-#endif/*__DR_DECTOR_H__*/
+#endif/*__DR_DETECTOR_H__*/

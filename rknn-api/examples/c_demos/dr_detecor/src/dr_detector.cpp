@@ -30,6 +30,7 @@ void* DrDetector::workThd()
                 bool ret = getHeadFrame(workFrame);
                 if (ret){
                     // Todo 后续的检测操作
+                    process(workFrame);
                 }else{
                     LOG_ERR << detectorName << ": get frame failed!" << endl;        
                 }
