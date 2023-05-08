@@ -19,7 +19,7 @@ DrDetector detectors[]={
 bool showOrgPicture = false;
 static void localCamThreadFun(){
     cv::VideoCapture camera;
-    camera.open(0); // 打开摄像头, 默认摄像头cameraIndex=0
+    camera.open(CAM_ID); // 打开摄像头, 默认摄像头cameraIndex=0
     if (!camera.isOpened())
     {
         LOG_ERR << "Couldn't open camera." << endl;

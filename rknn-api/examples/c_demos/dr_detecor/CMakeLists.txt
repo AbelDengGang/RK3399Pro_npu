@@ -13,8 +13,17 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-
-
+# 为不同的平台定义不同的配置
+# 本地摄像头ID: PC:0 ; toybrock 3399pro 5
+if(TARGET_PLATFORM STREQUAL PC)
+	message(STATUS "当前目标机器为PC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCAM_ID=0")
+elseif(TARGET_PLATFORM STREQUAL TB_3399PRO)
+	message(STATUS "当前目标机器为Toybrick 3300pro")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCAM_ID=5")
+else()
+	message(STATUS "当前目标机器未知")
+endif()
 add_executable(dr_detector
         src/dr_main.cpp
         src/dr_detector.cpp

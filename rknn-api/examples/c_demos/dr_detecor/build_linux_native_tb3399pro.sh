@@ -13,7 +13,8 @@ fi
 
 cd ${BUILD_DIR}
 cmake .. \
-    -DCMAKE_SYSTEM_NAME="Linux" 
+    -DCMAKE_SYSTEM_NAME="Linux" \
+    -DTARGET_PLATFORM="TB_3399PRO"
 make -j4
 make install
 cd -
