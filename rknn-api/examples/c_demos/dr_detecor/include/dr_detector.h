@@ -5,68 +5,41 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <thread>
+#include <mutex>
 #include <sys/time.h>
-
+#define LOG_ERR std::cerr
+#define LOG_INFO std::cout
 using namespace std;
 class Frame{
+public:
     int frameID;
-    cv::Mat frame;
+    cv::Mat picture;
+    void copyFrom(Frame &frame);
 };
 
 class DrDetector{
 private:
     pthread_mutex_t mutexFrame;     // 缓冲区互斥锁
-    sem_t full_sem;                 // 缓冲区计数信号量, 为0则处理线程阻塞
     int queueSize;
-    Frame * frameQueue;
+    int validFrameCnt;
+    int queueHead;
+    int queueTail;
+    //Todo: 暂时先用Frame数组来维护队列，每次入队和出队的时候使用深拷贝，后续要改成Frame指针数组，用移动指针的方法来减少内存拷贝的动作
+    Frame * frameQueue;        
+
     std::string detectorName;
     std::thread * pWorkThread;
+    int timeout;
 
+    sem_t full_sem;                         // 缓冲区计数信号量, 为0则处理线程阻塞
     bool stopThread;
-
+    bool getHeadFrame(Frame & outFrame);    // 获取队列中的第一个Frame用作处理 
 public:
 
-    void* workThd()
-    {
-        // 没有考虑该如何退出
-        while (1)
-        {
-            int k=1;
-            int result;
-            // 用sem_timedwait，当改变系统时间的时候，会有永远无法超时的风险， 不过问题不大，也许过一段时间新的图片来了，会唤醒他
-            struct timespec ts;
-            struct timeval tt;
-            gettimeofday(&tt,NULL);
-            ts.tv_sec = tt.tv_sec + k;
-            ts.tv_nsec = tt.tv_usec*1000 ;
-
-            result=sem_timedwait(&full_sem,&ts);
-            if (stopThread){
-                std::cout << detectorName << " quit work thread!" << endl;
-                break;
-            }
-            if(result == 0){
-                std::cout << detectorName << " process a new frame!" << endl;
-            }else if (result == -1){
-                std::cout << detectorName << " wait frame timeout!" << endl;    
-            }
-        }
-        printf("Leave thread1!\n");
-
-        return NULL;
-    }
+    void* workThd();
 
 
-    DrDetector(int frameQueueSize,const char * name):detectorName(name){
-        queueSize = frameQueueSize;
-        frameQueue = new Frame[frameQueueSize];
-        sem_init(&full_sem, 0, 0);    //初始化满的信号量
-        pthread_mutex_init(&mutexFrame, nullptr);
-
-        // 创建接收线程
-        stopThread = false;
-        pWorkThread = new std::thread (&DrDetector::workThd, this);
-    }
+    DrDetector(int frameQueueSize,const char * name);
 
     int getQueueSize(void){
         return queueSize;
@@ -74,21 +47,21 @@ public:
 
     ~DrDetector(){
         stopThread = true;
-        std::cout << detectorName << " waiting for work thread quit" << endl;
+        LOG_INFO << detectorName << ": waiting for work thread quit" << endl;
         sem_post(&full_sem); // 唤醒工作线程，让他退出
 
         pWorkThread->join(); // 等待工作线程退出
-        std::cout << detectorName << " work thread quited" << endl;
+        LOG_INFO << detectorName << ": work thread quited" << endl;
         if(frameQueue){
             delete []frameQueue;
         }
-
-        
         sem_destroy(&full_sem);
         pthread_mutex_destroy(&mutexFrame);
 
 
     }
+    // if queue has free slot, copy the frame to queue, and return true
+    // otherwise return false if queue is full.
     bool tryAddFrame(Frame &frame);
 };
 

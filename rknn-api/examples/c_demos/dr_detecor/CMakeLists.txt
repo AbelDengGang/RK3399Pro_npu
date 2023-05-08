@@ -17,6 +17,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 add_executable(dr_detector
         src/dr_main.cpp
+        src/dr_detector.cpp
         )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
