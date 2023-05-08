@@ -16,7 +16,7 @@
 // 如果所有的检测器都满了，那就丢弃
 DrDetector detectors[]={
 #ifdef USE_RK_NPU
-//    RKNpuDetector(2,"rknpu_detector"),
+    RKNpuDetector(2,"rknpu_detector"),
 #endif    
     DrDetector(3,"detector0"),
 //    DrDetector(5,"detector1"),
