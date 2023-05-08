@@ -9,12 +9,12 @@ private:
     int model_data_size;
 
 public:
-    RKNpuDetector(int frameQueueSize,const char * name):DrDetector(frameQueueSize,name){
-        rknnn_init();
+    RKNpuDetector(int frameQueueSize,const char * name,const char * modelName = "model/yolov5s_relu_out_opt.rknn"):DrDetector(frameQueueSize,name){
+        rknnn_init(modelName);
     }
 
     virtual void process(Frame & frame);
-    int rknnn_init();
+    int rknnn_init(const char * modelName);
     void rknn_deinit();
     virtual ~RKNpuDetector(){rknn_deinit();}
 

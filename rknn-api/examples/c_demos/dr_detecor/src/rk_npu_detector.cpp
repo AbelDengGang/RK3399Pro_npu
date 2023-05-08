@@ -122,9 +122,9 @@ void RKNpuDetector::process(Frame & frame){
 }
 
 
-int RKNpuDetector::rknnn_init(){
+int RKNpuDetector::rknnn_init(const char * model_name){
     int ret;
-    char *model_name = "model/yolov5s_relu_out_opt.rknn";
+    //char *model_name = "model/yolov5s_relu_out_opt.rknn";
     /* Create the neural network */
     printf("Loading mode...\n");
     model_data_size = 0;
