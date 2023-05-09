@@ -30,6 +30,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUINT8_PIC")
 add_definitions(-DTEST_PIC="model\/bus.bmp")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST_PIC=\"bus.bmp\"")
 
+#Opencv读取的数据为BGR格式，而model在训练时使用RGB格式，因此数据需要进行BGA->RGB转换
+#如果训练时使用opencv而不是pillow读取数据，那么则不需要转换
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBGR2RGB")
+
+#add_definitions(-DDETAIL_LOG)
+
 
 # 为不同的平台定义不同的配置
 # 本地摄像头ID: PC:0 ; toybrock 3399pro 5
@@ -60,9 +66,6 @@ elseif(TARGET_PLATFORM STREQUAL TB_3399PRO)
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCAM_ID=5 -DUSE_RK_NPU")
 
-	#Opencv读取的数据为BGA格式，而model在训练时使用RGB格式，因此数据需要进行BGA->RGB转换
-	#如果训练时使用opencv而不是pillow读取数据，那么则不需要转换
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBGR2RGB")
 
 	#是否使用RGA硬件加速模块进行图片的切片和resize
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_RGA")

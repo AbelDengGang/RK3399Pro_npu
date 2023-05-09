@@ -64,13 +64,28 @@ static void localCamThreadFun(){
             orgFrame.picture.convertTo(orgFrame.picture,CV_8U,255.0);
         }
 #endif        
+#ifdef BGR2RGB
+        {
+#ifdef DETAIL_LOG
+            struct timeval _start,_end;
+            gettimeofday(&_start,NULL);
+
+#endif
+        cv::cvtColor(orgFrame.picture, orgFrame.picture, cv::COLOR_BGR2RGB);
+#ifdef DETAIL_LOG
+            gettimeofday(&_end,NULL);
+            LOG_INFO << "BGA->RGB consumes:" << (_end.tv_sec*1000*1000+_end.tv_usec) - (_start.tv_sec*1000*1000+_start.tv_usec) << "us" << endl;
+#endif
+        }
+#endif 
+
+
         orgFrame.frameID = frameID;
         frameID ++;
         if (showOrgPicture){
             cv::imshow(window_name, orgFrame.picture);
             if (cv::waitKey(33) == 27) break; // ESC 键退出
         }
-
         for(int i = 0;i<sizeof(detectors)/sizeof(detectors[0]);++i){
             if(detectors[i].tryAddFrame(orgFrame)){
                 break;

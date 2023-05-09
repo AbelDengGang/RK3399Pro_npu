@@ -22,9 +22,11 @@ void* DrDetector::workThd()
             break;
         }
         if(result == 0){
+#ifdef DETAIL_LOG            
             struct timeval tt1;
             gettimeofday(&tt1,NULL);
             LOG_INFO << tt1.tv_sec << "." << tt1.tv_usec << detectorName << ": process a new frame!" <<  endl;
+#endif            
             {
                 Frame workFrame;
                 bool ret = getHeadFrame(workFrame);
@@ -68,9 +70,11 @@ bool DrDetector::tryAddFrame(Frame &frame){
         pTailFrame->copyFrom(frame);
         validFrameCnt ++;
         ret = true;
+#ifdef DETAIL_LOG        
         struct timeval tt1;
         gettimeofday(&tt1,NULL);
         LOG_INFO << tt1.tv_sec << "." << tt1.tv_usec << detectorName << ": add a new frame!" <<  endl;
+#endif        
         sem_post(&full_sem); 
 
     }else{
