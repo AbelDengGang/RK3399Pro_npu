@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.4.1)
 project(dr_detector)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
 
 # 打开debug选项
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -fno-omit-frame-pointer -O0")
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_BUILD_TYPE "Debug")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -fno-omit-frame-pointer -O0")
 
 # include
 include_directories(${CMAKE_SOURCE_DIR}/include)
