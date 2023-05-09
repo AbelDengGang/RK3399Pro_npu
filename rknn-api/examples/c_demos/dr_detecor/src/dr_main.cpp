@@ -21,7 +21,7 @@ DrDetector detectors[]={
     DrDetector(3,"detector0"),
 //    DrDetector(5,"detector1"),
 };
-bool showOrgPicture = false;
+bool showOrgPicture = true;
 static void localCamThreadFun(){
     cv::VideoCapture camera;
     camera.open(CAM_ID); // 打开摄像头, 默认摄像头cameraIndex=0
@@ -42,9 +42,28 @@ static void localCamThreadFun(){
     double fps = camera.get(cv::CAP_PROP_FPS);
     LOG_INFO << "Input picture: width:" << frameWidth << "," << "  height:"<< frameHeight << " fps:" << fps << endl;
     int frameID = 0;
+
+#ifdef TEST_PIC
+    LOG_INFO << "Test pic is " << TEST_PIC << endl;
+    cv::Mat imageFromFile = cv::imread(TEST_PIC, cv::IMREAD_COLOR);
+    if (imageFromFile.empty()) {
+        LOG_ERR << "Failed to load image" << std::endl;
+        return ;
+    }
+#endif
     while(1){
         Frame orgFrame;
+#ifdef TEST_PIC
+        orgFrame.picture = imageFromFile.clone();
+#else        
         camera >> orgFrame.picture;
+#endif 
+#ifdef UINT8_PIC
+        if ( orgFrame.picture.depth() != CV_8U){
+            LOG_INFO << "picture data format is " << orgFrame.picture.depth() << endl;
+            orgFrame.picture.convertTo(orgFrame.picture,CV_8U,255.0);
+        }
+#endif        
         orgFrame.frameID = frameID;
         frameID ++;
         if (showOrgPicture){
