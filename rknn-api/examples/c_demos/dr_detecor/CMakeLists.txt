@@ -3,8 +3,12 @@ cmake_minimum_required(VERSION 3.4.1)
 project(dr_detector)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
 
+# 打开debug选项
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -fno-omit-frame-pointer -O0")
 
 # include
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -34,7 +38,7 @@ add_definitions(-DTEST_PIC="model\/bus.bmp")
 #如果训练时使用opencv而不是pillow读取数据，那么则不需要转换
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBGR2RGB")
 
-#add_definitions(-DDETAIL_LOG)
+add_definitions(-DDETAIL_LOG)
 
 
 # 为不同的平台定义不同的配置
@@ -97,6 +101,7 @@ else()
 		${OpenCV_LIBS}
 	)
 endif()
+
 
 # install target and libraries
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install/dr_detcor${CMAKE_SYSTEM_NAME})

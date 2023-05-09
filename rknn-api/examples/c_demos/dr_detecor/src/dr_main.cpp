@@ -14,12 +14,17 @@
 // 当速度最快的检测器忙的时候，才尝试使用低速检测器。
 // 最低速的检测器不做任何处理，只是记录图片，用于利用前面检测器的结果进行tracking
 // 如果所有的检测器都满了，那就丢弃
-DrDetector detectors[]={
+
 #ifdef USE_RK_NPU
-    RKNpuDetector(2,"rknpu_detector"),
+RKNpuDetector rknnNpuDetector(2,"rknpu_detector");
 #endif    
-    DrDetector(3,"detector0"),
-//    DrDetector(5,"detector1"),
+
+DrDetector drDetector(3,"detector0");
+DrDetector *detectors[]={
+#ifdef USE_RK_NPU
+    &rknnNpuDetector,
+#endif    
+    &drDetector,
 };
 bool showOrgPicture = true;
 static void localCamThreadFun(){
@@ -86,15 +91,21 @@ static void localCamThreadFun(){
             cv::imshow(window_name, orgFrame.picture);
             if (cv::waitKey(33) == 27) break; // ESC 键退出
         }
+        // TODO 
+        // 图片预处理，把图片进行切割缩放以后，发送给检测器
+        // 检测器就不再进行缩放处理了，而是全力进行检测，并把检测后的结果拼接回原图
+        // 检测器线程本身就是耗时比较大的，预处理耗时一定比检测器耗时短，所以在读取线程中进行预处理，
+        // 这样可以避免读取线程白白浪费时间等待检测器完成检测
+        
         for(int i = 0;i<sizeof(detectors)/sizeof(detectors[0]);++i){
-            if(detectors[i].tryAddFrame(orgFrame)){
+            if(detectors[i]->tryAddFrame(orgFrame)){
                 break;
             }else{
             }
         }
     }
 
-        // 释放
+    // 释放
     camera.release();
     if (showOrgPicture){
         cv::destroyWindow(window_name);

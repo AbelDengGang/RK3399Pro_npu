@@ -12,7 +12,12 @@ int main(int argc, char** argv )
     std::cout << "total bytes = " <<  totalbyte << std::endl; 
     for(int i = 0;i<9;i++){
         std::cout << i << ":" << (unsigned int)(image.data[i]) << std::endl;
-    } 
+    }
+
+    // 设置ROI区域，并修改成黑色
+    cv::Mat subImg = image(cv::Rect(10, 20, 10, 10)); 
+    subImg.setTo(Scalar(0,0,0));
+
     namedWindow("Display Image", WINDOW_AUTOSIZE );
     imshow("Display Image", image);
     waitKey(0);

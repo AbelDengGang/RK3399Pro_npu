@@ -203,7 +203,9 @@ int RKNpuDetector::rknnn_init(const char * model_name){
         width = input_attrs[0].dims[1];
         height = input_attrs[0].dims[2];
     }
-
+    model_input_height = height;
+    model_input_width = width;
+    model_input_channel = channel;
     printf("model input height=%d, width=%d, channel=%d\n", height, width,
            channel);
 

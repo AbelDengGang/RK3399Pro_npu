@@ -10,6 +10,7 @@ private:
 
 public:
     RKNpuDetector(int frameQueueSize,const char * name,const char * modelName = "model/yolov5s_relu_out_opt.rknn"):DrDetector(frameQueueSize,name){
+        LOG_INFO << "RKNpuDetector::RKNpuDetector Called!" <<endl;
         rknnn_init(modelName);
     }
 
