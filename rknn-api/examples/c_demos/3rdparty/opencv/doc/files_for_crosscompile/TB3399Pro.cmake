@@ -1,0 +1,16 @@
+set(CMAKE_SYSTEM_NAME Linux)
+#set(CMAKE_SYSTEM_NAME UNIX)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+#
+set(tools /home/gang/workspace/tools/cross_compiler/arm/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu)
+#set(CMAKE_SYSROOT ${tools})
+set(CMAKE_C_COMPILER ${tools}/bin/aarch64-linux-gnu-gcc)
+set(CMAKE_CXX_COMPILER ${tools}/bin/aarch64-linux-gnu-g++)
+set(CMAKE_LINKER ${tools}/bin/aarch64-linux-gnu-ld)
+set(CMAKE_AR ${tools}/bin/aarch64-linux-gnu-ar)
+set(CMAKE_RANLIB ${tools}/bin/aarch64-linux-gnu-ranlib)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
