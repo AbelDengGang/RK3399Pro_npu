@@ -119,6 +119,77 @@ static unsigned char *load_model(const char *filename, int *model_size)
 
 void RKNpuDetector::process(Frame & frame){
 
+    if(frame.resizedPicture){
+        //cv::imshow("detect", (*frame.resizedPicture));
+        LOG_INFO << detectorName << " resizedPicture in !" << endl;
+        int ret;
+        // 使用单张图片进行检测
+        struct timeval start_time, stop_time;
+        rknn_input inputs[1];
+        memset(inputs, 0, sizeof(inputs));
+        inputs[0].index = 0;
+        inputs[0].type = RKNN_TENSOR_UINT8;
+        inputs[0].size = model_input_width * model_input_height * model_input_channel;
+        inputs[0].fmt = RKNN_TENSOR_NHWC;
+        inputs[0].pass_through = 0;
+        inputs[0].buf = (void *)frame.resizedPicture->data;
+        gettimeofday(&start_time, NULL);
+        rknn_inputs_set(ctx, io_num.n_input, inputs);
+        rknn_output outputs[io_num.n_output];
+        memset(outputs, 0, sizeof(outputs));
+        for (int i = 0; i < io_num.n_output; i++)
+        {
+            outputs[i].want_float = 0;
+        }
+
+        ret = rknn_run(ctx, NULL);
+        ret = rknn_outputs_get(ctx, io_num.n_output, outputs, NULL);
+        gettimeofday(&stop_time, NULL);
+        printf("once run use %f ms\n",
+           (__get_us(stop_time) - __get_us(start_time)) / 1000);
+
+
+        //post process
+        float scale_w = 1.0;//(float)width / img_width;
+        float scale_h = 1.0;//(float)height / img_height;
+
+        detect_result_group_t detect_result_group;
+        std::vector<float> out_scales;
+        std::vector<uint32_t> out_zps;
+        for (int i = 0; i < io_num.n_output; ++i)
+        {
+            out_scales.push_back(output_attrs[i].scale);
+            out_zps.push_back(output_attrs[i].zp);
+        }
+        post_process((uint8_t *)outputs[0].buf, (uint8_t *)outputs[1].buf, (uint8_t *)outputs[2].buf, model_input_height, model_input_width,
+                    0.5, 0.6, scale_w, scale_h, out_zps, out_scales, &detect_result_group);
+
+        // Draw Objects
+        char text[256];
+        const unsigned char blue[] = {0, 0, 255};
+        const unsigned char white[] = {255, 255, 255};
+        for (int i = 0; i < detect_result_group.count; i++)
+        {
+            detect_result_t *det_result = &(detect_result_group.results[i]);
+            sprintf(text, "%s %.2f", det_result->name, det_result->prop);
+            printf("%s @ (%d %d %d %d) %f\n",
+                det_result->name,
+                det_result->box.left, det_result->box.top, det_result->box.right, det_result->box.bottom,
+                det_result->prop);
+            int x1 = det_result->box.left;
+            int y1 = det_result->box.top;
+            int x2 = det_result->box.right;
+            int y2 = det_result->box.bottom;
+#if 0            
+            //draw box
+            // TODO use OPENCV function to draw box
+            img.draw_rectangle(x1, y1, x2, y2, blue, 1, ~0U);
+            img.draw_text(x1, y1 - 12, text, white);
+#endif            
+        }
+
+    }
+
 }
 
 
@@ -135,7 +206,7 @@ int RKNpuDetector::rknnn_init(const char * model_name){
         printf("rknn_init error ret=%d\n", ret);
         return -1;
     }
-    rknn_sdk_version version;
+
     ret = rknn_query(ctx, RKNN_QUERY_SDK_VERSION, &version,
                     sizeof(rknn_sdk_version));
 
@@ -147,7 +218,7 @@ int RKNpuDetector::rknnn_init(const char * model_name){
     printf("sdk version: %s driver version: %s\n", version.api_version,
            version.drv_version);
 
-    rknn_input_output_num io_num;
+
     ret = rknn_query(ctx, RKNN_QUERY_IN_OUT_NUM, &io_num, sizeof(io_num));
     if (ret < 0)
     {
@@ -157,7 +228,8 @@ int RKNpuDetector::rknnn_init(const char * model_name){
     printf("model input num: %d, output num: %d\n", io_num.n_input,
            io_num.n_output);
 
-    rknn_tensor_attr input_attrs[io_num.n_input];
+    //rknn_tensor_attr input_attrs[io_num.n_input];
+    input_attrs = new rknn_tensor_attr[io_num.n_input];
     memset(input_attrs, 0, sizeof(input_attrs));
     for (int i = 0; i < io_num.n_input; i++)
     {
@@ -172,7 +244,8 @@ int RKNpuDetector::rknnn_init(const char * model_name){
         dump_tensor_attr(&(input_attrs[i]));
     }
 
-    rknn_tensor_attr output_attrs[io_num.n_output];
+    //rknn_tensor_attr output_attrs[io_num.n_output];
+    output_attrs = new rknn_tensor_attr[io_num.n_output];
     memset(output_attrs, 0, sizeof(output_attrs));
     for (int i = 0; i < io_num.n_output; i++)
     {
@@ -222,4 +295,11 @@ void RKNpuDetector::rknn_deinit(){
         free(model_data);
     }
 
+    if (output_attrs){
+        delete []output_attrs;
+    }
+
+    if (input_attrs){
+        delete []input_attrs;
+    }
 }

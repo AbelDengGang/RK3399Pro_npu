@@ -27,17 +27,11 @@ public:
 };
 
 class Frame{
+    void clear(void);
 public:
     Frame():sliceCnt(0),slices(NULL),resizedPicture(NULL){};
     ~Frame(){
-        if(slices)
-        {
-            delete []slices;
-        }
-        if(resizedPicture)
-        {
-            delete resizedPicture;
-        }
+        clear();
     }
     int frameID;
     cv::Mat picture;
@@ -57,7 +51,6 @@ private:
     //Todo: 暂时先用Frame数组来维护队列，每次入队和出队的时候使用深拷贝，后续要改成Frame指针数组，用移动指针的方法来减少内存拷贝的动作
     Frame * frameQueue;        
 
-    std::string detectorName;
     std::thread * pWorkThread;
     int timeout;
 
@@ -65,6 +58,7 @@ private:
     bool stopThread;
     bool getHeadFrame(Frame & outFrame);    // 获取队列中的第一个Frame用作处理 
 public:
+    std::string detectorName;
     int model_input_height;                 // 模型的输入高度
     int model_input_width;                  // 模型的输入宽度
     int model_input_channel;

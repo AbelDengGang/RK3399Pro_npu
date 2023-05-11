@@ -2,8 +2,35 @@
 void Frame::copyFrom(Frame &frame){
         frameID = frame.frameID;
         frame.picture.copyTo(picture);
+
+        // 每个Frame只保留一份 缩小后的图或者切片列表
+        // 怎么管理还没有想好
+        // 这里会内存泄露
+
+        // TODO resizedPicture,只有一份, 这里临时hack一下，以后要改成引用计数
+        resizedPicture = frame.resizedPicture;
+
+        // TODO slices,只有一份, 这里临时hack一下，以后要改成引用计数
+        sliceCnt = frame.sliceCnt;
+        slices = frame.slices;
 }
 
+void Frame::clear(void){
+    // TODO 如何管理还没有想好
+    // 这里先不管内存泄露的问题
+#if 0        
+        if(slices)
+        {
+            delete []slices;
+        }
+        if(resizedPicture)
+        {
+            delete resizedPicture;
+        }
+#endif 
+
+
+}
 
 void printStackTrace() {
     void* callstack[128];
@@ -91,6 +118,7 @@ void DrDetector::resize_to_model(Frame &frame){
         LOG_INFO << "Picture size same as model, just copy" << endl;
 //#endif        
         *frame.resizedPicture = frame.picture.clone();
+        //cv::imshow("resized", (*frame.resizedPicture));
         return;
     }
     // 确定是x方向还是y方向填充
@@ -123,17 +151,32 @@ bool DrDetector::tryAddFrame(Frame &frame){
     bool ret = false;
     pthread_mutex_lock(&mutexFrame);
     if (validFrameCnt < queueSize){
+        if (resize_to_fit_model){
+#if 0
+            if(frame.slices){
+
+                delete []frame.slices;
+                frame.slices = NULL;
+                frame.sliceCnt = 0;
+            }
+#endif            
+            resize_to_model(frame);
+        }else{
+#if 0            
+            if (frame.resizedPicture){
+                delete frame.resizedPicture;
+                frame.resizedPicture = NULL;
+            }
+#endif            
+            // TODO 
+            // 切片
+        }
+
         Frame *pTailFrame = &frameQueue[queueTail];
         queueTail = (queueTail + 1) % queueSize;
         pTailFrame->copyFrom(frame);
         validFrameCnt ++;
         ret = true;
-        if (resize_to_fit_model){
-            resize_to_model(frame);
-        }else{
-            // TODO 
-            // 切片
-        }
 #ifdef DETAIL_LOG        
         struct timeval tt1;
         gettimeofday(&tt1,NULL);
