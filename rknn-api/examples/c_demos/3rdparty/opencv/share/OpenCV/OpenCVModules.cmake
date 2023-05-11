@@ -16,7 +16,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_targetsDefined)
 set(_targetsNotDefined)
 set(_expectedTargets)
-foreach(_expectedTarget opencv_world)
+foreach(_expectedTarget opencv_core opencv_flann opencv_imgproc opencv_ml opencv_photo opencv_video opencv_imgcodecs opencv_shape opencv_videoio opencv_highgui opencv_objdetect opencv_superres opencv_features2d opencv_calib3d opencv_stitching opencv_videostab)
   list(APPEND _expectedTargets ${_expectedTarget})
   if(NOT TARGET ${_expectedTarget})
     list(APPEND _targetsNotDefined ${_expectedTarget})
@@ -49,8 +49,53 @@ if(_IMPORT_PREFIX STREQUAL "/")
   set(_IMPORT_PREFIX "")
 endif()
 
-# Create imported target opencv_world
-add_library(opencv_world SHARED IMPORTED)
+# Create imported target opencv_core
+add_library(opencv_core SHARED IMPORTED)
+
+# Create imported target opencv_flann
+add_library(opencv_flann SHARED IMPORTED)
+
+# Create imported target opencv_imgproc
+add_library(opencv_imgproc SHARED IMPORTED)
+
+# Create imported target opencv_ml
+add_library(opencv_ml SHARED IMPORTED)
+
+# Create imported target opencv_photo
+add_library(opencv_photo SHARED IMPORTED)
+
+# Create imported target opencv_video
+add_library(opencv_video SHARED IMPORTED)
+
+# Create imported target opencv_imgcodecs
+add_library(opencv_imgcodecs SHARED IMPORTED)
+
+# Create imported target opencv_shape
+add_library(opencv_shape SHARED IMPORTED)
+
+# Create imported target opencv_videoio
+add_library(opencv_videoio SHARED IMPORTED)
+
+# Create imported target opencv_highgui
+add_library(opencv_highgui SHARED IMPORTED)
+
+# Create imported target opencv_objdetect
+add_library(opencv_objdetect SHARED IMPORTED)
+
+# Create imported target opencv_superres
+add_library(opencv_superres SHARED IMPORTED)
+
+# Create imported target opencv_features2d
+add_library(opencv_features2d SHARED IMPORTED)
+
+# Create imported target opencv_calib3d
+add_library(opencv_calib3d SHARED IMPORTED)
+
+# Create imported target opencv_stitching
+add_library(opencv_stitching SHARED IMPORTED)
+
+# Create imported target opencv_videostab
+add_library(opencv_videostab SHARED IMPORTED)
 
 # Load information for each installed configuration.
 get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)

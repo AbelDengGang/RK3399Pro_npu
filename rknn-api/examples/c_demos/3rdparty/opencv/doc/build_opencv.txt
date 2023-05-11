@@ -1,0 +1,37 @@
+opencv版本：
+为了与toybrick3399pro板子上的opencv一致，使用的opencv 版本为3.2.0。
+
+
+目录结构：
+在~目录下建立workspace 目录：
+编译时下载官方的3.2.0源代码，在workspace目录下解压，编译后的文件安装到examples 目录下的3rdparts/opencv目录下 
+workspace
+├── buildCV
+│   └── opencv-3.2.0
+├── RK3399Pro_npu
+│   ├── drivers
+│   │   ├── npu_firmware
+│   │   └── npu_transfer_proxy
+│   └── rknn-api
+│       ├── doc
+│       ├── examples
+│       └── librknn_api
+└── tools
+    ├── cross_compiler
+
+
+cmake 版本问题：
+cmake版本太低了会有问题，在ubuntu 22.10 下使用 3.22.1 版本的cmake可以编译成功，在ubuntu 18.04 下使用 3.10.2 版本的cmake编译则会失败。总是提示找不到链接器.
+
+编译命令以及使用交叉编译器：
+把 build_tb3399pro.sh 和 TB3399Pro.sh 放入源代码的根目录,替换OpenCVCompilerOptions.cmake 文件
+
+使用：
+在cmake命令中传入 OpenCV_DIR 路径,让cmake可以找到opencv包。
+例如：
+cmake .. \
+    -DCMAKE_SYSTEM_NAME="Linux" \
+    -DOpenCV_DIR=../3rdparty/opencv/share/OpenCV \
+    -DCMAKE_C_COMPILER=${GCC_COMPILER}-gcc \
+    -DCMAKE_CXX_COMPILER=${GCC_COMPILER}-g++
+make -j4
