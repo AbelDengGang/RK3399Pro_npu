@@ -118,7 +118,6 @@ static unsigned char *load_model(const char *filename, int *model_size)
 
 
 void RKNpuDetector::process(Frame & frame){
-
     if(frame.resizedPicture){
         //cv::imshow("detect", (*frame.resizedPicture));
         LOG_INFO << detectorName << " resizedPicture in !" << endl;

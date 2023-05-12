@@ -8,27 +8,43 @@ void Frame::copyFrom(Frame &frame){
         // 这里会内存泄露
 
         // TODO resizedPicture,只有一份, 这里临时hack一下，以后要改成引用计数
-        resizedPicture = frame.resizedPicture;
+        if(frame.resizedPicture){
+            if(!resizedPicture){
+                assert(resizedPicture = new cv::Mat());
+            }
+            *resizedPicture = *frame.resizedPicture;
+        }else
+        {
+            // 不删除自己的，留着内存给后面的resize函数使用
+        }
+        
 
         // TODO slices,只有一份, 这里临时hack一下，以后要改成引用计数
-        sliceCnt = frame.sliceCnt;
-        slices = frame.slices;
+        if( frame.sliceCnt){
+            if (sliceCnt != frame.sliceCnt){
+                if(slices){
+                    delete [] slices;
+                }
+                assert(slices = new FrameSlice[frame.sliceCnt]);
+                sliceCnt = frame.sliceCnt;
+                for (int i=0;i<sliceCnt;++i){
+                    slices[i] = frame.slices[i];
+                }
+            }
+        }else{
+            // 不删除自己的，留着内存给后面的slice函数使用
+        }
 }
 
 void Frame::clear(void){
-    // TODO 如何管理还没有想好
-    // 这里先不管内存泄露的问题
-#if 0        
-        if(slices)
-        {
-            delete []slices;
-        }
-        if(resizedPicture)
-        {
-            delete resizedPicture;
-        }
-#endif 
-
+    if(slices)
+    {
+        delete []slices;
+    }
+    if(resizedPicture)
+    {
+        delete resizedPicture;
+    }
 
 }
 
@@ -108,7 +124,9 @@ DrDetector::DrDetector(int frameQueueSize,const char * name):detectorName(name){
 
 bool showResizePicture = true;
 void DrDetector::resize_to_model(Frame &frame){
-    frame.resizedPicture = new cv::Mat(model_input_height,model_input_width,CV_8UC3,cv::Scalar(0,0,0));
+    if (!frame.resizedPicture )
+        frame.resizedPicture = new cv::Mat(model_input_height,model_input_width,CV_8UC3,cv::Scalar(0,0,0));
+
     int org_height = frame.picture.rows;
     int org_width = frame.picture.cols;
     //LOG_INFO << "Picture size (w x h) :" << org_width << "x" << org_height <<  endl;
@@ -151,30 +169,18 @@ bool DrDetector::tryAddFrame(Frame &frame){
     bool ret = false;
     pthread_mutex_lock(&mutexFrame);
     if (validFrameCnt < queueSize){
-        if (resize_to_fit_model){
-#if 0
-            if(frame.slices){
-
-                delete []frame.slices;
-                frame.slices = NULL;
-                frame.sliceCnt = 0;
-            }
-#endif            
-            resize_to_model(frame);
-        }else{
-#if 0            
-            if (frame.resizedPicture){
-                delete frame.resizedPicture;
-                frame.resizedPicture = NULL;
-            }
-#endif            
-            // TODO 
-            // 切片
-        }
 
         Frame *pTailFrame = &frameQueue[queueTail];
         queueTail = (queueTail + 1) % queueSize;
         pTailFrame->copyFrom(frame);
+        // 对队列中的图片进行切片或者缩放操作，而不是对原始图进行切片操作，
+        // 这样可以节省一次内存拷贝的动作
+        if (resize_to_fit_model){
+            resize_to_model(*pTailFrame);
+        }else{
+            // TODO 
+            // 切片
+        }
         validFrameCnt ++;
         ret = true;
 #ifdef DETAIL_LOG        
