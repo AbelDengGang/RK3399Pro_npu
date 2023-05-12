@@ -140,7 +140,6 @@ void RKNpuDetector::process(Frame & frame){
         {
             outputs[i].want_float = 0;
         }
-
         ret = rknn_run(ctx, NULL);
         ret = rknn_outputs_get(ctx, io_num.n_output, outputs, NULL);
         gettimeofday(&stop_time, NULL);
@@ -186,6 +185,7 @@ void RKNpuDetector::process(Frame & frame){
             img.draw_text(x1, y1 - 12, text, white);
 #endif            
         }
+        ret = rknn_outputs_release(ctx, io_num.n_output, outputs);
 
     }
 
